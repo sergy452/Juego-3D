@@ -14,6 +14,10 @@ public class Protagonista : MonoBehaviour
     public float walkSpeed = 5f;
     public float gravity = -15f; // Un poco más fuerte para que no "flote"
 
+    [Header("Objetos Recogidos")]
+    public int objetosRecogidos;
+    public GameObject[] objetos;
+
     private CharacterController controller;
     private float xRotation = 0f;
     private float yRotation = 0f;
@@ -30,6 +34,16 @@ public class Protagonista : MonoBehaviour
         Cursor.visible = false;
     }
 
+    public void Start()
+    {
+        foreach (GameObject obj  in objetos)
+        {
+            Renderer colorObjetos = obj.GetComponent<Renderer>();
+            colorObjetos.material.color = Color.blue;
+        }
+
+        objetosRecogidos = 0;
+    }
     void Update()
     {
         HandleRotation();

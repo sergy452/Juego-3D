@@ -5,7 +5,6 @@ using UnityEngine.AI;
 public class Enemigo : MonoBehaviour
 
 {
-
     public enum State { Wander, Chase, Investigate, Search }
 
     [Header("Estado Actual")]

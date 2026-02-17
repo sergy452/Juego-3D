@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Paredes
+  - Objetos
   layers:
   - Default
   - TransparentFX

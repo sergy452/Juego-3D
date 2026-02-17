@@ -3,7 +3,6 @@ using UnityEngine;
 public class Escondite : MonoBehaviour
 
 {
-
     public Enemigo enemigo;
 
     void OnTriggerEnter(Collider other)
