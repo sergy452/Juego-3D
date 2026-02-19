@@ -1,4 +1,9 @@
+using System;
+using TMPro;
+using TMPro.EditorUtilities;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class Protagonista : MonoBehaviour
@@ -17,6 +22,17 @@ public class Protagonista : MonoBehaviour
     [Header("Objetos Recogidos")]
     public int objetosRecogidos;
     public GameObject[] objetos;
+    public TMP_Text numeroObjetos;
+    public TMP_Text dialogo;
+
+    [Header("Pantalla de GameOver")]
+    public Image panelFinJuego;
+    public Button salirJuego;
+
+    [Header("Pantalla de GameOver")]
+    public Image panelGameOver;
+    public Button reintentar;
+    private bool estaMuerto;
 
     private CharacterController controller;
     private float xRotation = 0f;
@@ -42,7 +58,20 @@ public class Protagonista : MonoBehaviour
             colorObjetos.material.color = Color.blue;
         }
 
+        reintentar.onClick.AddListener(Reintentar);
+        salirJuego.onClick.AddListener(SalirJuego);
+        yRotation = transform.eulerAngles.y;
+        xRotation = playerCamera.transform.localEulerAngles.x;
+        if (xRotation > 180) xRotation -= 360;
         objetosRecogidos = 0;
+        ActualizarObjetos(0);
+        dialogo.enabled = false;
+    }
+
+    public void ActualizarObjetos(int objeto)
+    {
+        objetosRecogidos += objeto;
+        numeroObjetos.text = Convert.ToString(objetosRecogidos + "/6");
     }
     void Update()
     {
@@ -66,23 +95,80 @@ public class Protagonista : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, yRotation, 0f);
     }
 
+    public void FinDeJuego()
+    {
+        panelFinJuego.gameObject.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        estaMuerto = true;
+    }
+    public void GameOver()
+    {
+        estaMuerto = true;
+        panelGameOver.gameObject.SetActive(true);
+        numeroObjetos.enabled = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void SalirJuego()
+    {
+        UnityEditor.EditorApplication.isPlaying = false;
+        Application.Quit();
+    }
+    public void Reintentar()
+    {
+        objetosRecogidos = 0;
+        ActualizarObjetos(0);
+        panelGameOver.gameObject.SetActive(false);
+        numeroObjetos.enabled = true;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        estaMuerto = false;
+    }
+
     void HandleMovement()
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveZ = Input.GetAxisRaw("Vertical");
-
-        Vector3 move = (transform.right * moveX + transform.forward * moveZ).normalized;
-
-        // Aplicar movimiento
-        controller.Move(move * walkSpeed * Time.deltaTime);
-
-        // Gravedad
-        if (controller.isGrounded && velocity.y < 0)
+        if (!estaMuerto)
         {
-            velocity.y = -2f;
-        }
+            float moveX = Input.GetAxisRaw("Horizontal");
+            float moveZ = Input.GetAxisRaw("Vertical");
 
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+            Vector3 move = (transform.right * moveX + transform.forward * moveZ).normalized;
+
+            // Aplicar movimiento
+            controller.Move(move * walkSpeed * Time.deltaTime);
+
+            // Gravedad
+            if (controller.isGrounded && velocity.y < 0)
+            {
+                velocity.y = -2f;
+            }
+
+            velocity.y += gravity * Time.deltaTime;
+            controller.Move(velocity * Time.deltaTime);
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("FinJuego"))
+        {
+            if (objetosRecogidos == 6)
+            {
+                FinDeJuego();
+            }
+            else
+            {
+                dialogo.enabled = true;
+            }
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("FinJuego"))
+        {
+            dialogo.enabled = false;
+        }
     }
 }

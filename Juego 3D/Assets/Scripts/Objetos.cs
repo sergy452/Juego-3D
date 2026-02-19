@@ -13,7 +13,7 @@ public class Objetos : MonoBehaviour
             Protagonista scriptProta = other.GetComponent<Protagonista>();
             if (scriptProta != null)
             {
-                scriptProta.objetosRecogidos += 1;
+                scriptProta.ActualizarObjetos(1);
                 Debug.Log("¡Objeto recogido! Total: " + scriptProta.objetosRecogidos);
                 Destroy(gameObject);
             }

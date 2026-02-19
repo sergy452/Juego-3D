@@ -5,6 +5,7 @@ using UnityEngine.AI;
 public class Enemigo : MonoBehaviour
 
 {
+    Protagonista protagonista;
     public enum State { Wander, Chase, Investigate, Search }
 
     [Header("Estado Actual")]
@@ -42,13 +43,11 @@ public class Enemigo : MonoBehaviour
     void Awake()
 
     {
-
         agent = GetComponent<NavMeshAgent>();
 
         meshRenderer = GetComponent<MeshRenderer>();
 
         if (player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
-
     }
 
     void Update()
@@ -200,10 +199,12 @@ public class Enemigo : MonoBehaviour
     public bool PuedeVermeAhora()
 
     {
+        if (player != null)
+        {
+            float distance = Vector3.Distance(transform.position, player.position);
 
-        float distance = Vector3.Distance(transform.position, player.position);
-
-        if (distance > visionRange) return false;
+            if (distance > visionRange) return false;
+        }
 
         Vector3 directionToPlayer = (player.position - transform.position).normalized;
 
@@ -267,4 +268,13 @@ public class Enemigo : MonoBehaviour
 
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        // Comprobamos si lo que tocó tiene el tag "Player"
+        if (other.CompareTag("Player") && gameObject != null)
+        {
+            Protagonista scriptProta = other.GetComponent<Protagonista>();
+            scriptProta.GameOver();
+        }
+    }
 }
